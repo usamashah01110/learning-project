@@ -1,13 +1,121 @@
+<footer id="footer" class="footer light-background">
 
-<!-- Optional JavaScript; choose one of the two! -->
+    <div class="container footer-top">
+        <div class="row gy-4">
+            <div class="col-lg-3 col-md-6 footer-info">
+                <a href="index.html" class="logo d-flex align-items-center mb-4">
+                    <span class="sitename">Orbit</span>
+                </a>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.</p>
 
-<!-- Option 1: Bootstrap Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+                <div class="social-links d-flex mt-4">
+                    <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a>
+                    <a href="#" aria-label="Pinterest"><i class="bi bi-pinterest"></i></a>
+                </div>
+            </div>
 
-<!-- Option 2: Separate Popper and Bootstrap JS -->
-<!--
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
--->
+            <div class="col-lg-2 col-md-6 footer-links">
+                <h4>Shop</h4>
+                <ul>
+                    <li><a href="category.html">New Arrivals</a></li>
+                    <li><a href="category.html">Best Sellers</a></li>
+                    <li><a href="category.html">Sale Items</a></li>
+                    <li><a href="category.html">Men's Collection</a></li>
+                    <li><a href="category.html">Women's Collection</a></li>
+                    <li><a href="category.html">Accessories</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-md-6 footer-links">
+                <h4>Customer Service</h4>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="faq.html">FAQs</a></li>
+                    <li><a href="shiping-info.html">Shipping &amp; Returns</a></li>
+                    <li><a href="#">Size Guide</a></li>
+                    <li><a href="account.html">Track Order</a></li>
+                    <li><a href="#">Gift Cards</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-md-6 footer-links">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="about.html">Careers</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="about.html">Sustainability</a></li>
+                    <li><a href="about.html">Affiliate Program</a></li>
+                    <li><a href="about.html">Store Locator</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-newsletter">
+                    <h4>Stay Updated</h4>
+                    <p>Subscribe to our newsletter for exclusive offers, new arrivals, and fashion tips.</p>
+                    <form action="forms/newsletter.php" method="post" class="php-email-form">
+                        <div class="position-relative">
+                            <input type="email" name="email" placeholder="Your Email" required="">
+                            <button type="submit" class="btn-subscribe"><i class="bi bi-arrow-right"></i></button>
+                        </div>
+                        <div class="loading">Loading</div>
+                        <div class="error-message"></div>
+                        <div class="sent-message">Your subscription request has been sent. Thank you!</div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container footer-bottom">
+        <div class="row gy-3">
+            <div class="col-md-6 order-2 order-md-1">
+                <div class="copyright">
+                    <p>© <span>Copyright</span> <strong class="sitename">Orbit</strong>. All Rights Reserved.</p>
+                </div>
+                <div class="credits">
+                    <!-- All the links in the footer should remain intact. -->
+                    <!-- You can delete the links only if you've purchased the pro version. -->
+                    <!-- Licensing information: https://bootstrapmade.com/license/ -->
+                    <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
+                    Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a> | <a href="https://bootstrapmade.com/tools/">DevTools</a>
+                </div>
+            </div>
+            <div class="col-md-6 order-1 order-md-2">
+                <div class="legal-links">
+                    <a href="tos.html">Terms of Service</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="privacy.html">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</footer>
+
+<!-- Scroll Top -->
+<a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+<!-- Preloader -->
+<div id="preloader"></div>
+
+<!-- Vendor JS Files -->
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor/php-email-form/validate.js"></script>
+<script src="assets/vendor/aos/aos.js"></script>
+<script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+<script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+<script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+<script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+<script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+<!-- Main JS File -->
+<script src="assets/js/main.js"></script>
+
 </body>
+
 </html>
