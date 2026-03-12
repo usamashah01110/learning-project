@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -16,8 +17,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('payment');
 });
+
+Route::post('/create-payment', [PaymentController::class, 'createPayment']);
+Route::post('/attempt-payment', [PaymentController::class, 'attemptPayment']); // ✅ new
+
 
 Route::get('/dashboard', function () {
     return view('admin.dashboard');

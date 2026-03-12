@@ -30,5 +30,9 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
-
+    'ryft' => [
+        'secret' => env('RYFT_SECRET_KEY'),
+        'public' => env('RYFT_PUBLIC_KEY'),
+        'base_url' => env('RYFT_BASE_URL'),
+    ],
 ];
