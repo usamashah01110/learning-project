@@ -1,119 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Payment</title>
-    <script src="https://embedded.ryftpay.com/v2/ryft.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ryft Card Form</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://web-sdk.ryftpay.com/embedded/latest/ryft.min.js"></script>
+
+    <style>
+        #pay-btn {
+            background-color: #0070f3;
+            color: white;
+            border: none;
+            padding: 14px 22px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        #pay-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #09f;
+            animation: spin 1s ease infinite;
+            display: none;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
+
 <body>
 
 <div class="Ryft--paysection">
     <form id="ryft-pay-form" class="Ryft--payform">
-
-        {{-- Card fields --}}
-        <div>
-            <label>Card Number</label>
-            <input type="text" id="card-number" placeholder="4444333322221111" maxlength="16"/>
-        </div>
-        <div>
-            <label>Expiry Month</label>
-            <input type="text" id="expiry-month" placeholder="10" maxlength="2"/>
-        </div>
-        <div>
-            <label>Expiry Year</label>
-            <input type="text" id="expiry-year" placeholder="2024" maxlength="4"/>
-        </div>
-        <div>
-            <label>CVC</label>
-            <input type="text" id="cvc" placeholder="100" maxlength="4"/>
-        </div>
-
-        <button id="pay-btn">PAY NOW</button>
+        <div id="card-form-container"></div>
+        <button id="pay-btn" disabled>PAY NOW</button>
         <div id="ryft-pay-error"></div>
-        <div id="ryft-pay-success"></div>
+        <div id="spinner-container" class="spinner"></div>
     </form>
 </div>
 
 <script>
-    let storedClientSecret = null;
+    const { createController, createCardForm } = window.Ryft;
 
-    // Step 1: Create payment session on page load
-    async function initPayment() {
+    const publicKey = "pk_sandbox_p3i/voBCeoSpfbzeP2cNfhnURgM6DYiZGjXB3hn8d3xBKr/hrezFJw+lmvFqjeb2"; // 👈 your sandbox public key
+
+    const payButton = document.getElementById("pay-btn");
+    const errorDiv  = document.getElementById("ryft-pay-error");
+    const spinner   = document.getElementById("spinner-container");
+
+
+    async function initRyft() {
         try {
-            const response = await fetch('/create-payment', {
-                method: 'POST',
+            const res = await fetch("/create-payment", {   // 👈 your route
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "",
+                },
             });
 
-            const data = await response.json();
-
-            if (data.error) {
-                showError(data.error);
+            const data = await res.json();
+            console.log('Client Secret:', data.clientSecret);
+            if (!res.ok || !data.clientSecret) {
+                errorDiv.innerHTML = "<p style='color:red;'>Could not initialise payment. Please try again.</p>";
                 return;
             }
 
-            console.log( data.clientSecret);
+            const clientSecret = data.clientSecret;
+            const accountId    = data.accountId;
 
-            storedClientSecret = data.clientSecret; // ✅ store for later
-            console.log('Payment session ready');
 
-        } catch (error) {
-            console.error('Init error:', error);
-            showError('Failed to initialise payment.');
+            const controller = createController({
+                publicKey,
+                clientSecret,
+            });
+
+            // Step 3: Create & mount the card form
+            const cardForm = createCardForm(controller);
+
+            cardForm.on("validationChange", (event) => {
+                payButton.disabled = !event.isValid;
+            });
+
+            cardForm.mount("#card-form-container");
+
+
+            payButton.addEventListener("click", async (e) => {
+                e.preventDefault();
+
+                errorDiv.innerHTML  = "";
+                payButton.disabled  = true;
+                spinner.style.display = "block";
+
+                try {
+                    const result = await cardForm.attemptPayment();
+                    handlePaymentResult(result);
+                } catch (error) {
+                    spinner.style.display = "none";
+                    payButton.disabled    = false;
+                    console.error("System Error:", error);
+                    errorDiv.innerHTML = "<p style='color:red;'>An unexpected error occurred.</p>";
+                }
+            });
+
+        } catch (err) {
+            console.error("Init error:", err);
+            errorDiv.innerHTML = "<p style='color:red;'>Failed to load payment form.</p>";
         }
     }
 
-    // Step 2: On Pay button click, send card details to Laravel
-    document.getElementById('pay-btn').addEventListener('click', async (e) => {
-        e.preventDefault();
+    function handlePaymentResult(result) {
+        spinner.style.display = "none";
+        const session = result.paymentSession;
 
-        if (!storedClientSecret) {
-            showError('Payment session not ready. Please refresh.');
+        if (session.status === "Approved" || session.status === "Captured") {
+            console.log("Payment Successful", session);
+            errorDiv.innerHTML = "<p style='color:green;'>Payment Successful!</p>";
             return;
         }
 
-        const payload = {
-            clientSecret: storedClientSecret,
-            number:       document.getElementById('card-number').value,
-            expiryMonth:  document.getElementById('expiry-month').value,
-            expiryYear:   document.getElementById('expiry-year').value,
-            cvc:          document.getElementById('cvc').value,
-        };
-
-        try {
-            const response = await fetch('/attempt-payment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                document.getElementById('ryft-pay-success').innerHTML =
-                    `<p style='color:green;'>${result.message}</p>`;
-            } else {
-                showError(result.error ?? 'Payment failed.');
-            }
-
-        } catch (error) {
-            console.error('Payment error:', error);
-            showError('An unexpected error occurred.');
+        if (session.lastError) {
+            payButton.disabled = false;
+            console.error("Payment Error", session.lastError);
+            errorDiv.innerHTML = `<p style='color:red;'>${result.userFacingErrorMessage}</p>`;
         }
-    });
-
-    function showError(msg) {
-        document.getElementById('ryft-pay-error').innerHTML =
-            `<p style='color:red;'>${msg}</p>`;
     }
 
-    initPayment();
+    initRyft();
 </script>
 
 </body>
