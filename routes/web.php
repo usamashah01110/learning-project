@@ -21,7 +21,6 @@ Route::get('/', function () {
 });
 
 Route::post('/create-payment', [PaymentController::class, 'createPayment']);
-Route::post('/attempt-payment', [PaymentController::class, 'attemptPayment']); // ✅ new
 
 
 Route::get('/dashboard', function () {

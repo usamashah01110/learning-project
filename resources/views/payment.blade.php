@@ -193,7 +193,7 @@
         spinner.style.display = "none";
 
         const session = result.paymentSession;
-
+        console.log('payment-session-id',session);
         if (session.status === "Approved" || session.status === "Captured") {
             errorDiv.innerHTML = "<p class='text-success fw-bold'>✅ Payment Successful</p>";
             return;

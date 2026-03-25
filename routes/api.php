@@ -15,8 +15,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::post('/webhook/ryft', [PaymentController ::class, 'handle']);
 
-Route::post('/create-payment', [PaymentController::class, 'createSession']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
