@@ -1,147 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ryft Card Form</title>
+    <title>Secure Payment</title>
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Ryft SDK -->
     <script src="https://web-sdk.ryftpay.com/embedded/latest/ryft.min.js"></script>
 
     <style>
-        #pay-btn {
-            background-color: #0070f3;
-            color: white;
-            border: none;
-            padding: 14px 22px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 12px;
+        body {
+            background: #f5f7fb;
         }
 
-        #pay-btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
+        .card {
+            border: none;
+            border-radius: 12px;
+        }
+
+        .btn-primary {
+            background-color: #0070f3;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #005ad1;
         }
 
         .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: #09f;
-            animation: spin 1s ease infinite;
             display: none;
-            margin: 10px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-
 <body>
 
-<div class="Ryft--paysection">
-    <form id="ryft-pay-form" class="Ryft--payform">
-        <div id="card-form-container"></div>
-        <button id="pay-btn" disabled>PAY NOW</button>
-        <div id="ryft-pay-error"></div>
-        <div id="spinner-container" class="spinner"></div>
-    </form>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <!-- 🔹 Customer Form -->
+            <div class="card shadow p-4" id="customer-card">
+                <h4 class="mb-3 text-center">💳 Enter Payment Details</h4>
+
+                <form id="customer-form">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="name" class="form-control" placeholder="John Doe" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="email" class="form-control" placeholder="john@email.com" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="text" id="amount" class="form-control" placeholder="100" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Currency</label>
+                        <select name="currency" id="currency" class="form-control">
+                            <option value="USD"> USD </option>
+                            <option value="EUR"> EUR </option>
+                            <option value="GBP"> GBP </option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        Continue to Payment →
+                    </button>
+                </form>
+            </div>
+
+            <!-- 🔹 Payment Section -->
+            <div class="card shadow p-4 mt-4" id="payment-card" style="display:none;">
+                <h4 class="mb-3 text-center">🔒 Secure Card Payment</h4>
+
+                <form id="ryft-pay-form">
+                    <div id="card-form-container" class="mb-3"></div>
+
+                    <button id="pay-btn" class="btn btn-success w-100" disabled>
+                        Pay Now
+                    </button>
+
+                    <div id="spinner" class="text-center mt-3 spinner">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+
+                    <div id="error-message" class="mt-3 text-center"></div>
+                </form>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <script>
     const { createController, createCardForm } = window.Ryft;
 
-    const publicKey = "pk_sandbox_p3i/voBCeoSpfbzeP2cNfhnURgM6DYiZGjXB3hn8d3xBKr/hrezFJw+lmvFqjeb2"; // 👈 your sandbox public key
+    const publicKey = "pk_sandbox_p3i/voBCeoSpfbzeP2cNfhnURgM6DYiZGjXB3hn8d3xBKr/hrezFJw+lmvFqjeb2"; // 👈 replace
 
-    const payButton = document.getElementById("pay-btn");
-    const errorDiv  = document.getElementById("ryft-pay-error");
-    const spinner   = document.getElementById("spinner-container");
+    const customerForm = document.getElementById("customer-form");
+    const paymentCard  = document.getElementById("payment-card");
+    const customerCard = document.getElementById("customer-card");
 
+    const payBtn   = document.getElementById("pay-btn");
+    const spinner  = document.getElementById("spinner");
+    const errorDiv = document.getElementById("error-message");
 
-    async function initRyft() {
+    let cardFormInstance = null;
+
+    customerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const currency   = document.getElementById("currency").value;
+        const email  = document.getElementById("email").value;
+        const amount = document.getElementById("amount").value;
+
         try {
-            const res = await fetch("/create-payment", {   // 👈 your route
+            const res = await fetch("/create-payment", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
                 },
+                body: JSON.stringify({
+                    currency: currency,
+                    email: email,
+                    amount: amount
+                })
             });
 
             const data = await res.json();
-            console.log('Client Secret:', data.clientSecret);
+
             if (!res.ok || !data.clientSecret) {
-                errorDiv.innerHTML = "<p style='color:red;'>Could not initialise payment. Please try again.</p>";
+                showError("Failed to initialize payment");
                 return;
             }
 
-            const clientSecret = data.clientSecret;
-            const accountId    = data.accountId;
+            // UI Switch
+            customerCard.style.display = "none";
+            paymentCard.style.display  = "block";
 
-
-            const controller = createController({
-                publicKey,
-                clientSecret,
-            });
-
-            // Step 3: Create & mount the card form
-            const cardForm = createCardForm(controller);
-
-            cardForm.on("validationChange", (event) => {
-                payButton.disabled = !event.isValid;
-            });
-
-            cardForm.mount("#card-form-container");
-
-
-            payButton.addEventListener("click", async (e) => {
-                e.preventDefault();
-
-                errorDiv.innerHTML  = "";
-                payButton.disabled  = true;
-                spinner.style.display = "block";
-
-                try {
-                    const result = await cardForm.attemptPayment();
-                    handlePaymentResult(result);
-                } catch (error) {
-                    spinner.style.display = "none";
-                    payButton.disabled    = false;
-                    console.error("System Error:", error);
-                    errorDiv.innerHTML = "<p style='color:red;'>An unexpected error occurred.</p>";
-                }
-            });
+            initCardForm(data.clientSecret);
 
         } catch (err) {
-            console.error("Init error:", err);
-            errorDiv.innerHTML = "<p style='color:red;'>Failed to load payment form.</p>";
+            console.error(err);
+            showError("Something went wrong");
         }
+    });
+
+    function initCardForm(clientSecret) {
+
+        const controller = createController({
+            publicKey,
+            clientSecret,
+        });
+
+        cardFormInstance = createCardForm(controller);
+
+        cardFormInstance.on("validationChange", (event) => {
+            payBtn.disabled = !event.isValid;
+        });
+
+        cardFormInstance.mount("#card-form-container");
+
+        payBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            spinner.style.display = "block";
+            payBtn.disabled = true;
+            errorDiv.innerHTML = "";
+
+            try {
+                const result = await cardFormInstance.attemptPayment();
+                handlePaymentResult(result);
+            } catch (error) {
+                spinner.style.display = "none";
+                payBtn.disabled = false;
+                showError("Payment failed");
+            }
+        });
     }
 
     function handlePaymentResult(result) {
         spinner.style.display = "none";
+
         const session = result.paymentSession;
 
         if (session.status === "Approved" || session.status === "Captured") {
-            console.log("Payment Successful", session);
-            errorDiv.innerHTML = "<p style='color:green;'>Payment Successful!</p>";
+            errorDiv.innerHTML = "<p class='text-success fw-bold'>✅ Payment Successful</p>";
             return;
         }
 
         if (session.lastError) {
-            payButton.disabled = false;
-            console.error("Payment Error", session.lastError);
-            errorDiv.innerHTML = `<p style='color:red;'>${result.userFacingErrorMessage}</p>`;
+            payBtn.disabled = false;
+            showError(result.userFacingErrorMessage);
         }
     }
 
-    initRyft();
+    function showError(message) {
+        errorDiv.innerHTML = `<p class="text-danger">${message}</p>`;
+    }
 </script>
 
 </body>
