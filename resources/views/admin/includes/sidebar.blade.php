@@ -49,6 +49,11 @@
             <span>Posts</span>
         </a>
 
+        <a class="nav-link collapsed" href="{{ route('posts.index') }}" >
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Posts</span>
+        </a>
+    </li>
 
 </ul>
 <!-- End of Sidebar -->
