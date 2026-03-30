@@ -12,7 +12,7 @@
             </div>
             <div class="form-group">
                 <label for="inputAddress">Description</label>
-                <input type="text" name="description" class="form-control" id="inputAddress" placeholder="1234 Main St">
+                <input type="text" name="description" class="form-control" id="inputAddress" value="Description">
             </div>
             <div class="form-group">
                 <label for="inputAddress2">Tags</label>

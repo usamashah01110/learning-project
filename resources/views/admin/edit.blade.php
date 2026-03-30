@@ -2,7 +2,7 @@
 @section('content')
     <div class="container">
         <h1> Edit Post</h1>
-        <form action="{{ route('posts.store') }}" method="POST">
+        <form action="{{ route('posts.update', $post->id) }}" method="POST">
             @csrf
             <div class="form-row">
                 <div class="form-group col-md-12">
@@ -27,8 +27,8 @@
                     <label for="inputState">Status</label>
                     <select id="inputState" name="status" class="form-control">
 
-                        <option value="1">Active</option>
-                        <option value="0">Deavtive</option>
+                        <option value="1" >Active</option>
+                        <option value="0" selected>Deavtive</option>
 
                     </select>
                 </div>
