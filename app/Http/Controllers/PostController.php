@@ -16,29 +16,23 @@ class PostController extends Controller
         return view('admin.createpost');
     }
 
-    public function store(Request $request){
-//        $title = $request->title;
-//        $description = $request->description;
-//        $tags= $request->tags;
-//        $date = $request->date;
-//        $status = $request->status;
-//        $type = $request->type;
-//
-//        $post = new Post();
-//        $post->title = $title;
-//        $post->description = $description;
-//        $post->tags = $tags;
-//        $post->date = $date;
-//        $post->status = $status;
-//        $post->type = $type;
-//        $post->save();
-//
-//        return redirect('/posts');
+    public function edit($id){
+        $post = POST::find($id);
+        return view('admin.edit',compact('post'));
+    }
 
+    public function store(Request $request){
 
         $post = Post::create($request->all());
 
         return redirect('/posts');
 
+    }
+
+    public function delete($id){
+      $post = POST::find($id);
+      $post->delete();
+
+      return redirect()->back();
     }
 }
