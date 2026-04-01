@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('payment');
+    return view('welcome');
 });
 
 Route::post('/create-payment', [PaymentController::class, 'createPayment']);
